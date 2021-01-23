@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-1
+  name: nginx-1
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: nginx-1
+    spec:
+      containers:
+        - image: gcr.io/narcotic-gaming-ncl/github_sanketrevankar_chess
+          imagePullPolicy: IfNotPresent
+          name: github-sanketrevankar-chess-1
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: nginx-1
+  name: nginx-1-hpa-rnqe
+  namespace: default
+spec:
+  maxReplicas: 5
+  metrics:
+    - resource:
+        name: cpu
+        targetAverageUtilization: 80
+      type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+  labels:
+    app: nginx-1
+  name: nginx-1-service
+  namespace: default
+spec:
+  clusterIP: 10.28.5.23
+  externalTrafficPolicy: Cluster
+  ports:
+    - nodePort: 31158
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: nginx-1
+  sessionAffinity: None
+  type: LoadBalancer
