@@ -1,4 +1,4 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 public enum GameStatus {
     ACTIVE,

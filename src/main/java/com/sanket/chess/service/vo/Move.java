@@ -1,4 +1,4 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,5 +13,6 @@ public class Move {
     private Piece pieceMoved;
     private Piece pieceKilled;
     private boolean castlingMove;
+    private boolean enPassantMove;
 
 }

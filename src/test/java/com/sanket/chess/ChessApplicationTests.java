@@ -1,4 +1,4 @@
-package com.car24.chess;
+package com.sanket.chess;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

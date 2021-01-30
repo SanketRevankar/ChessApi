@@ -1,9 +1,12 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Pawn extends Piece {
 
-    public Pawn(boolean white, int x, int y) {
-        super("Pawn", white, x, y);
+    Pawn(boolean white) {
+        super("Pawn", white);
     }
 
     @Override
@@ -29,19 +32,22 @@ public class Pawn extends Piece {
         return false;
     }
 
-    public boolean isEnPassant(Board board, Spot start, Spot end) {
+    Spot isEnPassant(Board board, Spot start, Spot end) {
         int startX = start.getX();
         int endX = end.getX();
         int startY = start.getY();
         int endY = end.getY();
 
         int x = Math.abs(startX - endX);
-        int y = isWhite() ? (endY - startY) : (startY - endY);
+        int y = Math.abs(startY - endY);
 
-        if (y == 1 && x == 1) {
-            return board.getBox(endX, startY) != null;
+        if (y == 1 && x == 1 && board.getBox(endX, endY).getPiece() == null) {
+            Spot piece = board.getBox(startX, endY);
+            if (piece.getPiece() != null) {
+                return piece;
+            }
         }
 
-        return false;
+        return null;
     }
 }

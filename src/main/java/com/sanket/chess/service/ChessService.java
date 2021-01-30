@@ -1,7 +1,8 @@
-package com.car24.chess.service;
+package com.sanket.chess.service;
 
-import com.car24.chess.service.vo.Game;
-import com.car24.chess.service.vo.Move;
+import com.sanket.chess.service.exception.InvalidMoveException;
+import com.sanket.chess.service.vo.Game;
+import com.sanket.chess.service.vo.Move;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -12,8 +13,8 @@ import java.util.*;
 
 @Service
 public class ChessService {
-    Logger logger = LoggerFactory.getLogger(this.getClass());
-    ObjectMapper mapper = new ObjectMapper();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private final Map<String, Game> games;
 
@@ -25,8 +26,15 @@ public class ChessService {
         Move move = mapper.readValue(m, Move.class);
 
         Map<String, Object> response = new HashMap<>();
-        games.get(move.getGameId()).makeMove(move, response);
-        response.putAll(show(move.getGameId()));
+        try {
+            games.get(move.getGameId()).makeMove(move, response);
+            response.putAll(show(move.getGameId()));
+        } catch (InvalidMoveException e) {
+            response.put("message", e.getMessage());
+            logger.info(e.getMessage());
+            logger.info(e.getLocalizedMessage());
+            response.put("moved", false);
+        }
 
         return response;
     }

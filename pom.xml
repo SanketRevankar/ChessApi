@@ -8,9 +8,9 @@
 		<version>2.4.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.car24</groupId>
+	<groupId>com.sanket</groupId>
 	<artifactId>ChessApi</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 	<name>ChessApi</name>
 	<description>Chess API</description>
 

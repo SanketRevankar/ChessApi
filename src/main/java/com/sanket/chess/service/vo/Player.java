@@ -1,4 +1,4 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

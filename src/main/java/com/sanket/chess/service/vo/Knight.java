@@ -1,8 +1,8 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 public class Knight extends Piece {
-    public Knight(boolean white, int x, int y) {
-        super("Knight", white, x, y);
+    public Knight(boolean white) {
+        super("Knight", white);
     }
 
     @Override

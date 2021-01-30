@@ -1,7 +1,8 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sanket.chess.service.exception.InvalidMoveException;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,9 @@ public class Game {
         return this.getStatus() != GameStatus.ACTIVE;
     }
 
-    public void makeMove(Move move, Map<String, Object> response) throws JsonProcessingException {
+    public void makeMove(Move move, Map<String, Object> response) throws JsonProcessingException, InvalidMoveException {
         if (status != GameStatus.ACTIVE) {
-            response.put("error", status);
-            return;
+            throw new InvalidMoveException(status.toString());
         }
 
         Player player = move.getPlayer();
@@ -51,37 +51,36 @@ public class Game {
 
         Piece sourcePiece = move.getStart().getPiece();
         Piece destPiece = move.getEnd().getPiece();
-        logger.info(String.valueOf(sourcePiece));
-        logger.info(String.valueOf(destPiece));
 
         if (sourcePiece == null) {
-            response.put("error", "No piece at start position");
-            response.put("moved", false);
-            return;
+            throw new InvalidMoveException("No piece at start position");
         }
 
         if (player.getId() != currentTurn.getId()) {
-            response.put("error", "Not players turn");
-            response.put("moved", false);
-            return;
+            throw new InvalidMoveException("Not players turn");
         }
 
         if (sourcePiece.isWhite() != player.isWhiteSide()) {
-            response.put("error", "Not your piece");
-            response.put("moved", false);
-            return;
+            throw new InvalidMoveException("Not your piece");
         }
 
         if (destPiece != null && sourcePiece.isWhite() == destPiece.isWhite()) {
-            response.put("error", "Can't kill your piece");
-            response.put("moved", false);
-            return;
+            throw new InvalidMoveException("Can't kill your piece");
         }
 
         if (!sourcePiece.canMove(board, move.getStart(), move.getEnd())) {
-            response.put("error", "Invalid move");
-            response.put("moved", false);
-            return;
+            if (sourcePiece instanceof King && ((King) sourcePiece).isValidCastling(board, move.getEnd())) {
+                move.setCastlingMove(true);
+            } else if (sourcePiece instanceof Pawn) {
+                Spot enPassantSpot = ((Pawn) sourcePiece).isEnPassant(board, move.getStart(), move.getEnd());
+                if (enPassantSpot != null) {
+                    destPiece = enPassantSpot.getPiece();
+                    enPassantSpot.setPiece(null);
+                    move.setEnPassantMove(true);
+                }
+            } else {
+                throw new InvalidMoveException("Invalid move");
+            }
         }
 
         if (destPiece != null) {
@@ -89,11 +88,7 @@ public class Game {
             move.setPieceKilled(destPiece);
         }
 
-//        if (sourcePiece instanceof King && move.isCastlingMove()) {
-//            move.setCastlingMove(true);
-//        }
         move.setPieceMoved(sourcePiece);
-
         movesPlayed.add(objectMapper.writeValueAsString(move));
 
         move.getEnd().setPiece(move.getStart().getPiece());
@@ -106,5 +101,6 @@ public class Game {
         this.currentTurn = this.currentTurn == players[0] ? players[1] : players[0];
         response.put("moved", true);
     }
+
 }
 

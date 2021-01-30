@@ -1,7 +1,7 @@
-package com.car24.chess.api;
+package com.sanket.chess.api;
 
-import com.car24.chess.service.ChessService;
-import com.car24.chess.service.vo.Move;
+import com.sanket.chess.service.ChessService;
+import com.sanket.chess.service.vo.Move;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class ChessApi {
-    public static final String APPLICATION_JSON = "application/json";
+class ChessApi {
+    private static final String APPLICATION_JSON = "application/json";
 
     @Autowired
     private final ChessService chessService;

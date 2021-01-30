@@ -1,26 +1,29 @@
-package com.car24.chess.service.vo;
+package com.sanket.chess.service.vo;
 
 public class Bishop extends Piece {
-    public Bishop(boolean white, int x, int y) {
-        super("Bishop", white, x, y);
+    public Bishop(boolean white) {
+        super("Bishop", white);
     }
 
     @Override
     public boolean canMove(Board board, Spot start, Spot end) {
         int startX = start.getX();
         int endX = end.getX();
-        int x = Math.abs(startX - endX);
         int startY = start.getY();
         int endY = end.getY();
+
+        int x = Math.abs(startX - endX);
         int y = Math.abs(startY - endY);
 
         if (x != y) {
             return false;
         }
 
-        for (int i = startX + 1, j = startY + 1; i < endX && j < endY;
-             i += endX > startX ? 1 : -1, j += endY > startY ? 1 : -1) {
-            if (board.getBox(i, j) != null) {
+        int stepX = endX > startX ? 1 : -1;
+        int stepY = endY > startY ? 1 : -1;
+
+        for (int i = startX + stepX, j = startY + stepY; i != endX && j != endY; i += stepX, j += stepY) {
+            if (board.getBox(i, j).getPiece() != null) {
                 return false;
             }
         }
