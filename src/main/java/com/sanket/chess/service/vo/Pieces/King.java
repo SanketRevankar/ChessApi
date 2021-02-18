@@ -1,6 +1,8 @@
-package com.sanket.chess.service.vo;
+package com.sanket.chess.service.vo.Pieces;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sanket.chess.service.vo.Board;
+import com.sanket.chess.service.vo.Spot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,7 +36,7 @@ public class King extends Piece {
         return false;
     }
 
-    boolean isValidCastling(Board board, Spot end) {
+    public boolean isValidCastling(Board board, Spot end) {
         int x = end.getX();
         int y = end.getY();
 

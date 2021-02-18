@@ -1,7 +1,9 @@
-package com.sanket.chess.service.vo;
+package com.sanket.chess.service.vo.Pieces;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.sanket.chess.service.vo.Board;
+import com.sanket.chess.service.vo.Spot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
-    private int id;
+    private String id;
+    private String name;
     private boolean whiteSide;
 
 }

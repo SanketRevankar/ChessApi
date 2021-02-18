@@ -1,16 +1,17 @@
 package com.sanket.chess.service.vo;
 
+import com.sanket.chess.service.vo.Pieces.*;
 import lombok.Data;
 
 @Data
 public class Board {
     private Spot[][] boxes;
 
-    Board() {
+    public Board() {
         this.initBoard();
     }
 
-    Spot getBox(int x, int y) {
+    public Spot getBox(int x, int y) {
         if (x < 0 || x > 7 || y < 0 || y > 7) {
             throw new IndexOutOfBoundsException("Invalid spot");
         }

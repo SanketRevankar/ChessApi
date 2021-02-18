@@ -1,5 +1,5 @@
 FROM openjdk:8
-WORKDIR /workspace/app
+WORKDIR /api
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .

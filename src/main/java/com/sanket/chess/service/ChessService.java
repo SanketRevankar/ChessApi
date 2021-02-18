@@ -1,70 +1,97 @@
 package com.sanket.chess.service;
 
-import com.sanket.chess.service.exception.InvalidMoveException;
-import com.sanket.chess.service.vo.Game;
-import com.sanket.chess.service.vo.Move;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sanket.chess.kafka.Producer;
+import com.sanket.chess.mongodb.game.Game;
+import com.sanket.chess.mongodb.game.GameService;
+import com.sanket.chess.mongodb.user.User;
+import com.sanket.chess.service.exception.InvalidMoveException;
+import com.sanket.chess.service.vo.GameStatus;
+import com.sanket.chess.service.vo.Move;
+import com.sanket.chess.service.vo.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class ChessService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private final Map<String, Game> games;
+    private final Producer producer;
+    private final GameService gameService;
 
-    public ChessService() {
-        this.games = new HashMap<>();
+    public ChessService(@Autowired Producer producer,
+                        @Autowired GameService gameService) {
+        this.producer = producer;
+        this.gameService = gameService;
     }
 
-    public Map<String, Object> play(String m) throws JsonProcessingException {
-        Move move = mapper.readValue(m, Move.class);
-
-        Map<String, Object> response = new HashMap<>();
+    public void play(Move move) throws JsonProcessingException {
+        ChessManager chessManager = new ChessManager(gameService.getGame(move.getGameId()));
         try {
-            games.get(move.getGameId()).makeMove(move, response);
-            response.putAll(show(move.getGameId()));
+            chessManager.makeMove(move);
         } catch (InvalidMoveException e) {
-            response.put("message", e.getMessage());
-            logger.info(e.getMessage());
-            logger.info(e.getLocalizedMessage());
-            response.put("moved", false);
+            return;
         }
-
-        return response;
+        gameService.saveGame(chessManager.getGame());
+        producer.sendGame(mapper.writeValueAsString(chessManager.getGame()));
     }
 
-    public Map<String, Object> show(String gameId) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("board", games.get(gameId).getBoard().getBoxes());
-        response.put("status", games.get(gameId).getStatus());
-        response.put("currentTurn", games.get(gameId).getCurrentTurn().getId());
-        return response;
+    public Game show(String gameId) {
+        return gameService.getGame(gameId);
     }
 
-    public Map<String, Object> newGame() {
-        Game game = new Game();
-        String gameId = game.getGameId();
-        logger.info("[" + gameId + "]" + " Started Game");
+    public Map<String, String> newGame() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ChessManager chessManager = new ChessManager();
+        gameService.saveGame(chessManager.getGame());
 
-        games.put(gameId, game);
+        String gameId = chessManager.getGame().getId();
+        logger.info("New Game [" + gameId + "] started by " + user.getFullName() + " [" + user.getId() + "]");
 
-        Map<String, Object> response = new HashMap<>();
+        return getResponseMap(gameId);
+    }
+
+    private Map<String, String> getResponseMap(String gameId) {
+        Map<String, String> response = new HashMap<>();
         response.put("gameId", gameId);
-
         return response;
     }
 
-    public List<Move> moves(String gameId) throws JsonProcessingException {
-        List<Move> moves = new ArrayList<>();
-        for (String move: games.get(gameId).getMovesPlayed()) {
-            moves.add(mapper.readValue(move, Move.class));
+    public Map<String, String> joinGame(String gameId) throws JsonProcessingException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Game game = gameService.getGame(gameId);
+
+        if (game.getPlayers()[0].getId().equals(user.getId()) ||
+                Objects.equals(game.getPlayers()[1].getId(), user.getId())) {
+            return getResponseMap(gameId);
         }
-        return moves;
+
+        if (game.getStatus() == GameStatus.CREATED) {
+            boolean whiteSide = Math.random() < 0.5;
+            game.getPlayers()[1] = new Player(user.getId(), user.getFullName(), whiteSide);
+            game.getPlayers()[0].setWhiteSide(!whiteSide);
+            game.setStatus(GameStatus.ACTIVE);
+            game.setCurrentTurn(game.getPlayers()[0].isWhiteSide() ? game.getPlayers()[0] : game.getPlayers()[1]);
+            gameService.saveGame(game);
+            producer.sendGame(mapper.writeValueAsString(game));
+            return getResponseMap(gameId);
+        }
+
+        throw new HttpServerErrorException(HttpStatus.BAD_REQUEST);
+    }
+
+    public Map<Integer, Move> moves(String gameId) {
+        return gameService.getGame(gameId).getMovesPlayed();
     }
 }

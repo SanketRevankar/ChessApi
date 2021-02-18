@@ -1,4 +1,7 @@
-package com.sanket.chess.service.vo;
+package com.sanket.chess.service.vo.Pieces;
+
+import com.sanket.chess.service.vo.Board;
+import com.sanket.chess.service.vo.Spot;
 
 public class Bishop extends Piece {
     public Bishop(boolean white) {
