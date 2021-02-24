@@ -25,10 +25,12 @@ public class Pawn extends Piece {
         }
         addPossibleMove(board, x + change, y + 1, true);
         addPossibleMove(board, x + change, y - 1, true);
-        Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber());
-        Spot enPassant = move.getEnPassant();
-        if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
-            addPossibleMove(board, x + change, enPassant.getY(), false);
+        if (game.getCurrentMoveNumber() > 0) {
+            Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber());
+            Spot enPassant = move.getEnPassant();
+            if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
+                addPossibleMove(board, x + change, enPassant.getY(), false);
+            }
         }
     }
 
