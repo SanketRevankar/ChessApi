@@ -43,6 +43,7 @@ public class ChessService {
         } catch (InvalidMoveException e) {
             return;
         }
+        chessManager.getPossibleMoves();
         gameService.saveGame(chessManager.getGame());
         producer.sendGame(mapper.writeValueAsString(chessManager.getGame()));
     }
@@ -83,6 +84,9 @@ public class ChessService {
             game.getPlayers()[0].setWhiteSide(!whiteSide);
             game.setStatus(GameStatus.ACTIVE);
             game.setCurrentTurn(game.getPlayers()[0].isWhiteSide() ? game.getPlayers()[0] : game.getPlayers()[1]);
+            ChessManager chessManager = new ChessManager(game);
+            chessManager.getPossibleMoves();
+            game = chessManager.getGame();
             gameService.saveGame(game);
             producer.sendGame(mapper.writeValueAsString(game));
             return getResponseMap(gameId);

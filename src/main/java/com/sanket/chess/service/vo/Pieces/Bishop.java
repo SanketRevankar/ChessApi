@@ -1,5 +1,6 @@
 package com.sanket.chess.service.vo.Pieces;
 
+import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.service.vo.Board;
 import com.sanket.chess.service.vo.Spot;
 
@@ -32,5 +33,34 @@ public class Bishop extends Piece {
         }
 
         return true;
+    }
+
+    @Override
+    public void loadPossibleMoves(Game game, int x, int y) {
+        super.loadPossibleMoves(game, x, y);
+        Board board = game.getBoard();
+        int[] choices = new int[]{-1, 1};
+        for (int choice1: choices) {
+            for (int choice2: choices) {
+                for (int i = 1; i < 8; i++) {
+                    if (!addPossibleMove(board, x + choice1 * i, y + choice2 * i)) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean addPossibleMove(Board board, int x, int y) {
+        try {
+            Spot box = board.getBox(x, y);
+            if (box.getPiece() == null) {
+                getPossibleMoves().add(box);
+                return true;
+            } else if (box.getPiece().isWhite() != isWhite()) {
+                getPossibleMoves().add(box);
+            }
+        } catch (IndexOutOfBoundsException ignored) {}
+        return false;
     }
 }

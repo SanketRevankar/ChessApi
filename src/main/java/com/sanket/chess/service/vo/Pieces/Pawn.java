@@ -1,12 +1,48 @@
 package com.sanket.chess.service.vo.Pieces;
 
+import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.service.vo.Board;
+import com.sanket.chess.service.vo.Move;
 import com.sanket.chess.service.vo.Spot;
+
+import java.util.ArrayList;
 
 public class Pawn extends Piece {
 
     public Pawn(boolean white) {
         super("Pawn", white);
+    }
+
+    @Override
+    public void loadPossibleMoves(Game game, int x, int y) {
+        super.loadPossibleMoves(game, x, y);
+        Board board = game.getBoard();
+        int change = isWhite() ? 1 : -1;
+        int start = isWhite() ? 1 : 6;
+        addPossibleMove(board, x + change, y, false);
+        if (x == start) {
+            addPossibleMove(board, x + 2 * change, y, false);
+        }
+        addPossibleMove(board, x + change, y + 1, true);
+        addPossibleMove(board, x + change, y - 1, true);
+        Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber());
+        Spot enPassant = move.getEnPassant();
+        if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
+            addPossibleMove(board, x + change, enPassant.getY(), false);
+        }
+    }
+
+    private void addPossibleMove(Board board, int x, int y, boolean enemy) {
+        try {
+            Spot box = board.getBox(x, y);
+            if (enemy) {
+                if (box.getPiece() != null && box.getPiece().isWhite() != isWhite()) {
+                    getPossibleMoves().add(box);
+                }
+            } else if (box.getPiece() == null) {
+                getPossibleMoves().add(box);
+            }
+        } catch (IndexOutOfBoundsException ignored) {}
     }
 
     @Override

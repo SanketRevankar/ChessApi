@@ -2,6 +2,7 @@ package com.sanket.chess.service.vo.Pieces;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.service.vo.Board;
 import com.sanket.chess.service.vo.Spot;
 import lombok.Data;
@@ -42,5 +43,32 @@ public class Rook extends Piece {
 
         moved = true;
         return true;
+    }
+
+    @Override
+    public void loadPossibleMoves(Game game, int x, int y) {
+        super.loadPossibleMoves(game, x, y);
+        Board board = game.getBoard();
+        int[][] choices = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] choice: choices) {
+            for (int k = 1; k < 8; k++) {
+                if (!addPossibleMove(board, x + choice[0] * k, y + choice[1] * k)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private boolean addPossibleMove(Board board, int x, int y) {
+        try {
+            Spot box = board.getBox(x, y);
+            if (box.getPiece() == null) {
+                getPossibleMoves().add(box);
+                return true;
+            } else if (box.getPiece().isWhite() != isWhite()) {
+                getPossibleMoves().add(box);
+            }
+        } catch (IndexOutOfBoundsException ignored) {}
+        return false;
     }
 }

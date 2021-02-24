@@ -17,7 +17,6 @@ import java.util.HashMap;
 @Data
 public class ChessManager {
     private final ObjectMapper mapper = new ObjectMapper();
-
     private Game game;
 
     public ChessManager() {
@@ -39,6 +38,23 @@ public class ChessManager {
 
     public boolean isEnd() {
         return game.getStatus() != GameStatus.ACTIVE;
+    }
+
+    public void getPossibleMoves() {
+        Board gameBoard = game.getBoard();
+        Spot[][] board = gameBoard.getBoxes();
+        boolean whiteSide = game.getCurrentTurn().isWhiteSide();
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board[i][j].getPiece();
+                if (piece != null) {
+                    if (piece.isWhite() == whiteSide) {
+                        piece.loadPossibleMoves(game, i, j);
+                    }
+                }
+            }
+        }
     }
 
     public void makeMove(Move move) throws InvalidMoveException, JsonProcessingException {

@@ -1,9 +1,13 @@
 package com.sanket.chess.service.vo.Pieces;
 
+import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.service.vo.Board;
 import com.sanket.chess.service.vo.Spot;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +17,7 @@ class Piece {
     private String name;
     private boolean killed = false;
     private boolean white;
+    private List<Spot> possibleMoves = new ArrayList<>();
 
     public Piece(String name, boolean white) {
         this.name = name;
@@ -22,4 +27,9 @@ class Piece {
     public boolean canMove(Board board, Spot start, Spot end) {
         return false;
     }
+
+    public void loadPossibleMoves(Game game, int x, int y) {
+        getPossibleMoves().clear();
+    }
+
 }

@@ -3,23 +3,13 @@ package com.sanket.chess.service.vo;
 import com.sanket.chess.service.vo.Pieces.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Board {
     private Spot[][] boxes;
 
     public Board() {
-        this.initBoard();
-    }
-
-    public Spot getBox(int x, int y) {
-        if (x < 0 || x > 7 || y < 0 || y > 7) {
-            throw new IndexOutOfBoundsException("Invalid spot");
-        }
-
-        return boxes[x][y];
-    }
-
-    private void initBoard() {
         boxes = new Spot[8][8];
         initPieces(true);
         initPieces(false);
@@ -29,6 +19,14 @@ public class Board {
                 boxes[i][j] = new Spot(null, i, j);
             }
         }
+    }
+
+    public Spot getBox(int x, int y) {
+        if (x < 0 || x > 7 || y < 0 || y > 7) {
+            throw new IndexOutOfBoundsException("Invalid spot");
+        }
+
+        return boxes[x][y];
     }
 
     private void initPieces(boolean white) {
