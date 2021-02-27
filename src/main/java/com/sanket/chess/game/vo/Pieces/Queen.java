@@ -1,21 +1,12 @@
-package com.sanket.chess.service.vo.Pieces;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package com.sanket.chess.game.vo.Pieces;
 
 import com.sanket.chess.mongodb.game.Game;
-import com.sanket.chess.service.vo.Board;
-import com.sanket.chess.service.vo.Spot;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.sanket.chess.game.vo.Board;
+import com.sanket.chess.game.vo.Spot;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-public class Rook extends Piece {
-    @JsonIgnore
-    private boolean moved = false;
-
-    public Rook(boolean white) {
-        super("Rook", white);
+public class Queen extends Piece {
+    public Queen(boolean white) {
+        super("Queen", white);
     }
 
     @Override
@@ -28,7 +19,7 @@ public class Rook extends Piece {
         int x = Math.abs(startX - endX);
         int y = Math.abs(startY - endY);
 
-        if (x != 0 && y != 0) {
+        if ((x != y) && (x != 0 && y != 0)) {
             return false;
         }
 
@@ -41,7 +32,6 @@ public class Rook extends Piece {
             }
         }
 
-        moved = true;
         return true;
     }
 
@@ -49,11 +39,12 @@ public class Rook extends Piece {
     public void loadPossibleMoves(Game game, int x, int y) {
         super.loadPossibleMoves(game, x, y);
         Board board = game.getBoard();
-        int[][] choices = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (int[] choice: choices) {
-            for (int k = 1; k < 8; k++) {
-                if (!addPossibleMove(board, x + choice[0] * k, y + choice[1] * k)) {
-                    break;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                for (int k = 1; k < 8; k++) {
+                    if (!addPossibleMove(board, x + i * k, y + j * k)) {
+                        break;
+                    }
                 }
             }
         }

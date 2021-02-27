@@ -1,9 +1,7 @@
-package com.sanket.chess.service.vo;
+package com.sanket.chess.game.vo;
 
-import com.sanket.chess.service.vo.Pieces.*;
+import com.sanket.chess.game.vo.Pieces.*;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class Board {

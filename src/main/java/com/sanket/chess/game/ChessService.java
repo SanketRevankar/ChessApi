@@ -1,4 +1,4 @@
-package com.sanket.chess.service;
+package com.sanket.chess.game;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,10 +6,10 @@ import com.sanket.chess.kafka.Producer;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.mongodb.game.GameService;
 import com.sanket.chess.mongodb.user.User;
-import com.sanket.chess.service.exception.InvalidMoveException;
-import com.sanket.chess.service.vo.GameStatus;
-import com.sanket.chess.service.vo.Move;
-import com.sanket.chess.service.vo.Player;
+import com.sanket.chess.game.exception.InvalidMoveException;
+import com.sanket.chess.game.vo.GameStatus;
+import com.sanket.chess.game.vo.Move;
+import com.sanket.chess.game.vo.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,13 +89,11 @@ public class ChessService {
             game = chessManager.getGame();
             gameService.saveGame(game);
             producer.sendGame(mapper.writeValueAsString(game));
+            logger.info("Game [" + gameId + "] joined by " + user.getFullName() + " [" + user.getId() + "]");
             return getResponseMap(gameId);
         }
 
         throw new HttpServerErrorException(HttpStatus.BAD_REQUEST);
     }
 
-    public Map<Integer, Move> moves(String gameId) {
-        return gameService.getGame(gameId).getMovesPlayed();
-    }
 }

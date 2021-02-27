@@ -1,18 +1,18 @@
-package com.sanket.chess.service;
+package com.sanket.chess.game;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.mongodb.user.User;
-import com.sanket.chess.service.exception.InvalidMoveException;
-import com.sanket.chess.service.vo.*;
-import com.sanket.chess.service.vo.Pieces.King;
-import com.sanket.chess.service.vo.Pieces.Pawn;
-import com.sanket.chess.service.vo.Pieces.Piece;
+import com.sanket.chess.game.exception.InvalidMoveException;
+import com.sanket.chess.game.vo.*;
+import com.sanket.chess.game.vo.Pieces.King;
+import com.sanket.chess.game.vo.Pieces.Pawn;
+import com.sanket.chess.game.vo.Pieces.Piece;
 import lombok.Data;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 @Data
 public class ChessManager {
@@ -28,7 +28,7 @@ public class ChessManager {
         game.setBoard(new Board());
         game.setCurrentMoveNumber(0);
         game.setStatus(GameStatus.CREATED);
-        game.setMovesPlayed(new HashMap<>());
+        game.setMovesPlayed(new ArrayList<>());
         game.setCurrentTurn(game.getPlayers()[0].isWhiteSide() ? game.getPlayers()[0] : game.getPlayers()[1]);
     }
 
@@ -83,18 +83,17 @@ public class ChessManager {
         game.setCurrentMoveNumber(game.getCurrentMoveNumber() + 1);
         move.setPieceMoved(sourcePiece);
         move.setMoveId(game.getCurrentMoveNumber());
-        game.getMovesPlayed().put(game.getCurrentMoveNumber(),
-                mapper.readValue(mapper.writeValueAsString(move), Move.class));
+        game.getMovesPlayed().add(mapper.readValue(mapper.writeValueAsString(move), Move.class));
 
         end.setPiece(move.getStart().getPiece());
         start.setPiece(null);
 
         if (destPiece instanceof King) {
             game.setStatus(player.isWhiteSide() ? GameStatus.WHITE_WIN : GameStatus.BLACK_WIN);
+        } else {
+            Player[] players = game.getPlayers();
+            game.setCurrentTurn(game.getCurrentTurn().getId().equals(players[0].getId()) ? players[1] : players[0]);
         }
-
-        Player[] players = game.getPlayers();
-        game.setCurrentTurn(game.getCurrentTurn().getId().equals(players[0].getId()) ? players[1] : players[0]);
     }
 
     private Piece validateMove(Move move, Piece sourcePiece, Piece destPiece) throws InvalidMoveException {
@@ -107,7 +106,7 @@ public class ChessManager {
                 if (((Pawn) sourcePiece).isPassedPawn(game.getBoard(), start, end)) {
                     move.setEnPassant(end);
                 } else {
-                    Move lastMove = game.getMovesPlayed().get(game.getCurrentMoveNumber());
+                    Move lastMove = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
                     Spot enPassant;
                     if (lastMove != null) {
                         enPassant = lastMove.getEnPassant();

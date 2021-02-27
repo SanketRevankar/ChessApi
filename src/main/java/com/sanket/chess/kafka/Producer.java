@@ -11,8 +11,8 @@ public class Producer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendGame(String what) {
-        this.kafkaTemplate.send("chess", what);
+    public void sendGame(String game) {
+        this.kafkaTemplate.send("chess", game);
     }
 
 }

@@ -1,10 +1,8 @@
-package com.sanket.chess.api;
+package com.sanket.chess.game;
 
-import com.sanket.chess.mongodb.game.Game;
-import com.sanket.chess.service.ChessService;
-import com.sanket.chess.service.exception.InvalidMoveException;
-import com.sanket.chess.service.vo.Move;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sanket.chess.game.vo.Move;
+import com.sanket.chess.mongodb.game.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +41,4 @@ class ChessApi {
         return chessService.show(gameId);
     }
 
-    @GetMapping(value = "/api/moves", produces = APPLICATION_JSON)
-    public Map<Integer, Move> moves(@RequestParam String gameId) {
-        return chessService.moves(gameId);
-    }
 }

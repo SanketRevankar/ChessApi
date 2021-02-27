@@ -1,4 +1,4 @@
-package com.sanket.chess.service.vo;
+package com.sanket.chess.game.vo;
 
 public enum GameStatus {
     CREATED,

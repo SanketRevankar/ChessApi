@@ -1,4 +1,4 @@
-package com.sanket.chess.service.exception;
+package com.sanket.chess.game.exception;
 
 /**
  * @author Sanket Revankar

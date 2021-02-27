@@ -1,11 +1,9 @@
-package com.sanket.chess.service.vo.Pieces;
+package com.sanket.chess.game.vo.Pieces;
 
 import com.sanket.chess.mongodb.game.Game;
-import com.sanket.chess.service.vo.Board;
-import com.sanket.chess.service.vo.Move;
-import com.sanket.chess.service.vo.Spot;
-
-import java.util.ArrayList;
+import com.sanket.chess.game.vo.Board;
+import com.sanket.chess.game.vo.Move;
+import com.sanket.chess.game.vo.Spot;
 
 public class Pawn extends Piece {
 
@@ -26,7 +24,7 @@ public class Pawn extends Piece {
         addPossibleMove(board, x + change, y + 1, true);
         addPossibleMove(board, x + change, y - 1, true);
         if (game.getCurrentMoveNumber() > 0) {
-            Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber());
+            Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
             Spot enPassant = move.getEnPassant();
             if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
                 addPossibleMove(board, x + change, enPassant.getY(), false);

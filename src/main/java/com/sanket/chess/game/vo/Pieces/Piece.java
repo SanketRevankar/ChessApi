@@ -1,8 +1,8 @@
-package com.sanket.chess.service.vo.Pieces;
+package com.sanket.chess.game.vo.Pieces;
 
 import com.sanket.chess.mongodb.game.Game;
-import com.sanket.chess.service.vo.Board;
-import com.sanket.chess.service.vo.Spot;
+import com.sanket.chess.game.vo.Board;
+import com.sanket.chess.game.vo.Spot;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

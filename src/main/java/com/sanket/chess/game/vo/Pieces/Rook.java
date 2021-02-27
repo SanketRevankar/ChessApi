@@ -1,12 +1,21 @@
-package com.sanket.chess.service.vo.Pieces;
+package com.sanket.chess.game.vo.Pieces;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.sanket.chess.mongodb.game.Game;
-import com.sanket.chess.service.vo.Board;
-import com.sanket.chess.service.vo.Spot;
+import com.sanket.chess.game.vo.Board;
+import com.sanket.chess.game.vo.Spot;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-public class Bishop extends Piece {
-    public Bishop(boolean white) {
-        super("Bishop", white);
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class Rook extends Piece {
+    @JsonIgnore
+    private boolean moved = false;
+
+    public Rook(boolean white) {
+        super("Rook", white);
     }
 
     @Override
@@ -19,19 +28,20 @@ public class Bishop extends Piece {
         int x = Math.abs(startX - endX);
         int y = Math.abs(startY - endY);
 
-        if (x != y) {
+        if (x != 0 && y != 0) {
             return false;
         }
 
-        int stepX = endX > startX ? 1 : -1;
-        int stepY = endY > startY ? 1 : -1;
+        int stepX = x == 0 ? 0 : endX > startX ? 1 : -1;
+        int stepY = y == 0 ? 0 : endY > startY ? 1 : -1;
 
-        for (int i = startX + stepX, j = startY + stepY; i != endX && j != endY; i += stepX, j += stepY) {
+        for (int i = startX + stepX, j = startY + stepY; i != endX || j != endY; i += stepX, j += stepY) {
             if (board.getBox(i, j).getPiece() != null) {
                 return false;
             }
         }
 
+        moved = true;
         return true;
     }
 
@@ -39,13 +49,11 @@ public class Bishop extends Piece {
     public void loadPossibleMoves(Game game, int x, int y) {
         super.loadPossibleMoves(game, x, y);
         Board board = game.getBoard();
-        int[] choices = new int[]{-1, 1};
-        for (int choice1: choices) {
-            for (int choice2: choices) {
-                for (int i = 1; i < 8; i++) {
-                    if (!addPossibleMove(board, x + choice1 * i, y + choice2 * i)) {
-                        break;
-                    }
+        int[][] choices = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] choice: choices) {
+            for (int k = 1; k < 8; k++) {
+                if (!addPossibleMove(board, x + choice[0] * k, y + choice[1] * k)) {
+                    break;
                 }
             }
         }
