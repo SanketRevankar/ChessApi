@@ -100,7 +100,8 @@ public class ChessManager {
         Spot start = move.getStart();
         Spot end = move.getEnd();
         if (!sourcePiece.canMove(game.getBoard(), start, end)) {
-            if (sourcePiece instanceof King && ((King) sourcePiece).isValidCastling(game.getBoard(), end)) {
+            if (sourcePiece instanceof King &&
+                    ((King) sourcePiece).isValidCastling(game.getBoard(), end.getX(), end.getY(), false)) {
                 move.setCastlingMove(true);
             } else if (sourcePiece instanceof Pawn) {
                 if (((Pawn) sourcePiece).isPassedPawn(game.getBoard(), start, end)) {

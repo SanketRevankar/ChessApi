@@ -37,12 +37,9 @@ public class King extends Piece {
         return false;
     }
 
-    public boolean isValidCastling(Board board, Spot end) {
-        int x = end.getX();
-        int y = end.getY();
-
+    public boolean isValidCastling(Board board, int x, int y, boolean check) {
         if (!castlingDone && !moved) {
-            if (y == 6 || y == 1) {
+            if (y == 6 || y == 2) {
                 int rookPos = y == 6 ? 7 : 0;
                 int step = y == 6 ? 1 : -1;
                 Piece rook = board.getBox(x, rookPos).getPiece();
@@ -52,10 +49,12 @@ public class King extends Piece {
                             return false;
                         }
                     }
-                    board.getBox(x, y == 6 ? 5 : 2).setPiece(rook);
-                    board.getBox(x, rookPos).setPiece(null);
-                    castlingDone = true;
-                    moved = true;
+                    if (!check) {
+                        board.getBox(x, y == 6 ? 5 : 3).setPiece(rook);
+                        board.getBox(x, rookPos).setPiece(null);
+                        castlingDone = true;
+                        moved = true;
+                    }
                     return true;
                 }
             }
@@ -72,6 +71,14 @@ public class King extends Piece {
             for (int j = -1; j < 2; j++) {
                 addPossibleMove(board, x + i, y + j);
             }
+        }
+        addPossibleCastlingMove(board, x, 2);
+        addPossibleCastlingMove(board, x, 6);
+    }
+
+    private void addPossibleCastlingMove(Board board, int x, int y) {
+        if (isValidCastling(board, x, y, true)) {
+            getPossibleMoves().add(board.getBox(x, y));
         }
     }
 

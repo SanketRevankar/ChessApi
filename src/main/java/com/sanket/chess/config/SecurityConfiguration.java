@@ -1,5 +1,6 @@
-package com.sanket.chess.auth;
+package com.sanket.chess.config;
 
+import com.sanket.chess.auth.SecurityServletFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

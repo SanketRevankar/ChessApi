@@ -1,4 +1,4 @@
-package com.sanket.chess.auth;
+package com.sanket.chess.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
