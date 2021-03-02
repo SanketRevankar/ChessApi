@@ -2,13 +2,11 @@ package com.sanket.chess.game;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sanket.chess.game.vo.Pieces.*;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.mongodb.user.User;
 import com.sanket.chess.game.exception.InvalidMoveException;
 import com.sanket.chess.game.vo.*;
-import com.sanket.chess.game.vo.Pieces.King;
-import com.sanket.chess.game.vo.Pieces.Pawn;
-import com.sanket.chess.game.vo.Pieces.Piece;
 import lombok.Data;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -51,6 +49,8 @@ public class ChessManager {
                 if (piece != null) {
                     if (piece.isWhite() == whiteSide) {
                         piece.loadPossibleMoves(game, i, j);
+                    } else {
+                        piece.setPossibleMoves(new ArrayList<>());
                     }
                 }
             }
@@ -66,9 +66,6 @@ public class ChessManager {
         Spot start = game.getBoard().getBox(move.getStart().getX(), move.getStart().getY());
         Spot end = game.getBoard().getBox(move.getEnd().getX(), move.getEnd().getY());
 
-        move.setStart(start);
-        move.setEnd(end);
-
         Piece sourcePiece = start.getPiece();
         Piece destPiece = end.getPiece();
 
@@ -77,15 +74,24 @@ public class ChessManager {
 
         if (destPiece != null) {
             destPiece.setKilled(true);
-            move.setPieceKilled(destPiece);
+            move.setPieceKilled(destPiece.getName());
         }
 
         game.setCurrentMoveNumber(game.getCurrentMoveNumber() + 1);
-        move.setPieceMoved(sourcePiece);
         move.setMoveId(game.getCurrentMoveNumber());
+        move.setPieceMoved(sourcePiece.getName());
         game.getMovesPlayed().add(mapper.readValue(mapper.writeValueAsString(move), Move.class));
 
-        end.setPiece(move.getStart().getPiece());
+        if (sourcePiece instanceof Pawn && end.getX() == (start.getPiece().isWhite() ? 7 : 0)) {
+            switch (move.getPawnPromotion()) {
+                case "queen": end.setPiece(new Queen(player.isWhiteSide())); break;
+                case "rook": end.setPiece(new Rook(player.isWhiteSide())); break;
+                case "bishop": end.setPiece(new Bishop(player.isWhiteSide())); break;
+                case "knight": end.setPiece(new Knight(player.isWhiteSide())); break;
+            }
+        } else {
+            end.setPiece(sourcePiece);
+        }
         start.setPiece(null);
 
         if (destPiece instanceof King) {
@@ -97,8 +103,8 @@ public class ChessManager {
     }
 
     private Piece validateMove(Move move, Piece sourcePiece, Piece destPiece) throws InvalidMoveException {
-        Spot start = move.getStart();
-        Spot end = move.getEnd();
+        Box start = move.getStart();
+        Box end = move.getEnd();
         if (!sourcePiece.canMove(game.getBoard(), start, end)) {
             if (sourcePiece instanceof King &&
                     ((King) sourcePiece).isValidCastling(game.getBoard(), end.getX(), end.getY(), false)) {
@@ -108,7 +114,7 @@ public class ChessManager {
                     move.setEnPassant(end);
                 } else {
                     Move lastMove = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
-                    Spot enPassant;
+                    Box enPassant;
                     if (lastMove != null) {
                         enPassant = lastMove.getEnPassant();
                     } else {
@@ -118,7 +124,6 @@ public class ChessManager {
                         Spot enPassantSpot = game.getBoard().getBox(enPassant.getX(), enPassant.getY());
                         destPiece = enPassantSpot.getPiece();
                         enPassantSpot.setPiece(null);
-                        move.setEnPassantMove(true);
                     } else {
                         throw new InvalidMoveException("Invalid move");
                     }

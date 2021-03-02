@@ -1,5 +1,6 @@
 package com.sanket.chess.game.vo.Pieces;
 
+import com.sanket.chess.game.vo.Box;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Spot;
@@ -10,7 +11,7 @@ public class Knight extends Piece {
     }
 
     @Override
-    public boolean canMove(Board board, Spot start, Spot end) {
+    public boolean canMove(Board board, Box start, Box end) {
         int x = Math.abs(start.getX() - end.getX());
         int y = Math.abs(start.getY() - end.getY());
         return x * y == 2;

@@ -1,5 +1,6 @@
 package com.sanket.chess.game.vo.Pieces;
 
+import com.sanket.chess.game.vo.Box;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Move;
@@ -18,14 +19,14 @@ public class Pawn extends Piece {
         int change = isWhite() ? 1 : -1;
         int start = isWhite() ? 1 : 6;
         addPossibleMove(board, x + change, y, false);
-        if (x == start) {
+        if (x == start && board.getBox(x + change, y).getPiece() == null) {
             addPossibleMove(board, x + 2 * change, y, false);
         }
         addPossibleMove(board, x + change, y + 1, true);
         addPossibleMove(board, x + change, y - 1, true);
         if (game.getCurrentMoveNumber() > 0) {
             Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
-            Spot enPassant = move.getEnPassant();
+            Box enPassant = move.getEnPassant();
             if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
                 addPossibleMove(board, x + change, enPassant.getY(), false);
             }
@@ -46,7 +47,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canMove(Board board, Spot start, Spot end) {
+    public boolean canMove(Board board, Box start, Box end) {
         int startX = start.getX();
         int endX = end.getX();
         int startY = start.getY();
@@ -65,7 +66,7 @@ public class Pawn extends Piece {
         return false;
     }
 
-    public boolean isPassedPawn(Board board, Spot start, Spot end) {
+    public boolean isPassedPawn(Board board, Box start, Box end) {
         int startX = start.getX();
         int endX = end.getX();
         int startY = start.getY();
@@ -82,7 +83,7 @@ public class Pawn extends Piece {
         return false;
     }
 
-    public boolean isEnPassant(int x, int y, Spot enPassant) {
+    public boolean isEnPassant(int x, int y, Box enPassant) {
         if (enPassant == null) {
             return false;
         }

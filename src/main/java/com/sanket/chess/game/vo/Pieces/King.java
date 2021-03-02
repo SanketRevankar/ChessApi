@@ -1,6 +1,7 @@
 package com.sanket.chess.game.vo.Pieces;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sanket.chess.game.vo.Box;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Spot;
@@ -20,7 +21,7 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canMove(Board board, Spot start, Spot end) {
+    public boolean canMove(Board board, Box start, Box end) {
         int startX = start.getX();
         int endX = end.getX();
         int startY = start.getY();

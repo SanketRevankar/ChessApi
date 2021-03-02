@@ -1,5 +1,6 @@
 package com.sanket.chess.game.vo.Pieces;
 
+import com.sanket.chess.game.vo.Box;
 import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Spot;
@@ -24,7 +25,7 @@ class Piece {
         this.white = white;
     }
 
-    public boolean canMove(Board board, Spot start, Spot end) {
+    public boolean canMove(Board board, Box start, Box end) {
         return false;
     }
 
