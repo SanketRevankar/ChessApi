@@ -8,6 +8,8 @@ import com.sanket.chess.game.vo.Spot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class King extends Piece {
@@ -65,29 +67,30 @@ public class King extends Piece {
 
 
     @Override
-    public void loadPossibleMoves(Game game, int x, int y) {
-        super.loadPossibleMoves(game, x, y);
+    public ArrayList<Box> fetchPossibleMoves(Game game, int x, int y) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
         Board board = game.getBoard();
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
-                addPossibleMove(board, x + i, y + j);
+                addPossibleMove(board, x + i, y + j, possibleMoves);
             }
         }
-        addPossibleCastlingMove(board, x, 2);
-        addPossibleCastlingMove(board, x, 6);
+        addPossibleCastlingMove(board, x, 2, possibleMoves);
+        addPossibleCastlingMove(board, x, 6, possibleMoves);
+        return possibleMoves;
     }
 
-    private void addPossibleCastlingMove(Board board, int x, int y) {
+    private void addPossibleCastlingMove(Board board, int x, int y, ArrayList<Box> possibleMoves) {
         if (isValidCastling(board, x, y, true)) {
-            getPossibleMoves().add(board.getBox(x, y));
+            possibleMoves.add(new Box(x, y));
         }
     }
 
-    private void addPossibleMove(Board board, int x, int y) {
+    private void addPossibleMove(Board board, int x, int y, ArrayList<Box> possibleMoves) {
         try {
             Spot box = board.getBox(x, y);
             if (box.getPiece() == null || box.getPiece().isWhite() != isWhite()) {
-                getPossibleMoves().add(box);
+                possibleMoves.add(new Box(x, y));
             }
         } catch (IndexOutOfBoundsException ignored) {}
     }

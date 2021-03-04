@@ -5,6 +5,8 @@ import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Spot;
 
+import java.util.ArrayList;
+
 public class Bishop extends Piece {
     public Bishop(boolean white) {
         super("Bishop", white);
@@ -37,29 +39,30 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public void loadPossibleMoves(Game game, int x, int y) {
-        super.loadPossibleMoves(game, x, y);
+    public ArrayList<Box> fetchPossibleMoves(Game game, int x, int y) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
         Board board = game.getBoard();
         int[] choices = new int[]{-1, 1};
         for (int choice1: choices) {
             for (int choice2: choices) {
                 for (int i = 1; i < 8; i++) {
-                    if (!addPossibleMove(board, x + choice1 * i, y + choice2 * i)) {
+                    if (!addPossibleMove(board, x + choice1 * i, y + choice2 * i, possibleMoves)) {
                         break;
                     }
                 }
             }
         }
+        return possibleMoves;
     }
 
-    private boolean addPossibleMove(Board board, int x, int y) {
+    private boolean addPossibleMove(Board board, int x, int y, ArrayList<Box> possibleMoves) {
         try {
             Spot box = board.getBox(x, y);
             if (box.getPiece() == null) {
-                getPossibleMoves().add(box);
+                possibleMoves.add(new Box(x, y));
                 return true;
             } else if (box.getPiece().isWhite() != isWhite()) {
-                getPossibleMoves().add(box);
+                possibleMoves.add(new Box(x, y));
             }
         } catch (IndexOutOfBoundsException ignored) {}
         return false;

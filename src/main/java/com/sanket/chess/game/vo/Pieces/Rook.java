@@ -9,6 +9,8 @@ import com.sanket.chess.game.vo.Spot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Rook extends Piece {
@@ -47,8 +49,8 @@ public class Rook extends Piece {
     }
 
     @Override
-    public void loadPossibleMoves(Game game, int x, int y) {
-        super.loadPossibleMoves(game, x, y);
+    public ArrayList<Box> fetchPossibleMoves(Game game, int x, int y) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
         Board board = game.getBoard();
         int[][] choices = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int[] choice: choices) {
@@ -58,16 +60,17 @@ public class Rook extends Piece {
                 }
             }
         }
+        return possibleMoves;
     }
 
     private boolean addPossibleMove(Board board, int x, int y) {
         try {
             Spot box = board.getBox(x, y);
             if (box.getPiece() == null) {
-                getPossibleMoves().add(box);
+                getPossibleMoves().add(new Box(x, y));
                 return true;
             } else if (box.getPiece().isWhite() != isWhite()) {
-                getPossibleMoves().add(box);
+                getPossibleMoves().add(new Box(x, y));
             }
         } catch (IndexOutOfBoundsException ignored) {}
         return false;

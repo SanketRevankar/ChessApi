@@ -6,44 +6,12 @@ import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Move;
 import com.sanket.chess.game.vo.Spot;
 
+import java.util.ArrayList;
+
 public class Pawn extends Piece {
 
     public Pawn(boolean white) {
         super("Pawn", white);
-    }
-
-    @Override
-    public void loadPossibleMoves(Game game, int x, int y) {
-        super.loadPossibleMoves(game, x, y);
-        Board board = game.getBoard();
-        int change = isWhite() ? 1 : -1;
-        int start = isWhite() ? 1 : 6;
-        addPossibleMove(board, x + change, y, false);
-        if (x == start && board.getBox(x + change, y).getPiece() == null) {
-            addPossibleMove(board, x + 2 * change, y, false);
-        }
-        addPossibleMove(board, x + change, y + 1, true);
-        addPossibleMove(board, x + change, y - 1, true);
-        if (game.getCurrentMoveNumber() > 0) {
-            Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
-            Box enPassant = move.getEnPassant();
-            if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
-                addPossibleMove(board, x + change, enPassant.getY(), false);
-            }
-        }
-    }
-
-    private void addPossibleMove(Board board, int x, int y, boolean enemy) {
-        try {
-            Spot box = board.getBox(x, y);
-            if (enemy) {
-                if (box.getPiece() != null && box.getPiece().isWhite() != isWhite()) {
-                    getPossibleMoves().add(box);
-                }
-            } else if (box.getPiece() == null) {
-                getPossibleMoves().add(box);
-            }
-        } catch (IndexOutOfBoundsException ignored) {}
     }
 
     @Override
@@ -64,6 +32,44 @@ public class Pawn extends Piece {
         }
 
         return false;
+    }
+
+    @Override
+    public ArrayList<Box> fetchPossibleMoves(Game game, int x, int y) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
+        Board board = game.getBoard();
+        int change = isWhite() ? 1 : -1;
+        addPossibleMove(board, x + change, y, false, possibleMoves);
+        if (x == (isWhite() ? 1 : 6) && board.getBox(x + change, y).getPiece() == null) {
+            addPossibleMove(board, x + 2 * change, y, false, possibleMoves);
+        }
+        addPossibleMove(board, x + change, y + 1, true, possibleMoves);
+        addPossibleMove(board, x + change, y - 1, true, possibleMoves);
+        addPossibleEnPassant(game, x, y, board, change, possibleMoves);
+        return possibleMoves;
+    }
+
+    private void addPossibleEnPassant(Game game, int x, int y, Board board, int change, ArrayList<Box> possibleMoves) {
+        if (game.getCurrentMoveNumber() > 0) {
+            Move move = game.getMovesPlayed().get(game.getCurrentMoveNumber() - 1);
+            Box enPassant = move.getEnPassant();
+            if (enPassant != null && x == enPassant.getX() && Math.abs(y - enPassant.getY()) == 1) {
+                addPossibleMove(board, x + change, enPassant.getY(), false, possibleMoves);
+            }
+        }
+    }
+
+    private void addPossibleMove(Board board, int x, int y, boolean enemy, ArrayList<Box> possibleMoves) {
+        try {
+            Spot box = board.getBox(x, y);
+            if (enemy) {
+                if (box.getPiece() != null && box.getPiece().isWhite() != isWhite()) {
+                    possibleMoves.add(new Box(x, y));
+                }
+            } else if (box.getPiece() == null) {
+                possibleMoves.add(new Box(x, y));
+            }
+        } catch (IndexOutOfBoundsException ignored) {}
     }
 
     public boolean isPassedPawn(Board board, Box start, Box end) {

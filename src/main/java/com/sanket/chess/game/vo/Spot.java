@@ -18,4 +18,5 @@ class Spot extends Box {
         super(i, j);
         this.piece = piece;
     }
+
 }

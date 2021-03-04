@@ -39,8 +39,7 @@ public class ChessManager {
     }
 
     public void getPossibleMoves() {
-        Board gameBoard = game.getBoard();
-        Spot[][] board = gameBoard.getBoxes();
+        Spot[][] board = game.getBoard().getBoxes();
         boolean whiteSide = game.getCurrentTurn().isWhiteSide();
 
         for (int i = 0; i < 8; i++) {
@@ -48,13 +47,34 @@ public class ChessManager {
                 Piece piece = board[i][j].getPiece();
                 if (piece != null) {
                     if (piece.isWhite() == whiteSide) {
-                        piece.loadPossibleMoves(game, i, j);
+                        piece.setPossibleMoves(piece.fetchPossibleMoves(game, i, j));
+                        if (piece instanceof King) {
+                            game.setCheck(hasCheck(game, i, j));
+                        }
                     } else {
                         piece.setPossibleMoves(new ArrayList<>());
                     }
                 }
             }
         }
+    }
+
+    private boolean hasCheck(Game game, int x, int y) {
+        Spot[][] board = game.getBoard().getBoxes();
+        boolean whiteSide = game.getCurrentTurn().isWhiteSide();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board[i][j].getPiece();
+                if (piece != null) {
+                    if (piece.isWhite() != whiteSide) {
+                        if (piece.fetchPossibleMoves(game, i, j).contains(new Box(x, y))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void makeMove(Move move) throws InvalidMoveException, JsonProcessingException {

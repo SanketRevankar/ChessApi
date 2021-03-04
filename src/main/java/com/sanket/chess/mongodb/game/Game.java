@@ -22,5 +22,5 @@ public class Game {
     private GameStatus status;
     private int currentMoveNumber;
     private List<Move> movesPlayed;
-
+    private boolean check;
 }

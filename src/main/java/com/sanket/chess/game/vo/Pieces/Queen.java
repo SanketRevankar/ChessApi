@@ -5,6 +5,8 @@ import com.sanket.chess.mongodb.game.Game;
 import com.sanket.chess.game.vo.Board;
 import com.sanket.chess.game.vo.Spot;
 
+import java.util.ArrayList;
+
 public class Queen extends Piece {
     public Queen(boolean white) {
         super("Queen", white);
@@ -37,28 +39,29 @@ public class Queen extends Piece {
     }
 
     @Override
-    public void loadPossibleMoves(Game game, int x, int y) {
-        super.loadPossibleMoves(game, x, y);
+    public ArrayList<Box> fetchPossibleMoves(Game game, int x, int y) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
         Board board = game.getBoard();
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 for (int k = 1; k < 8; k++) {
-                    if (!addPossibleMove(board, x + i * k, y + j * k)) {
+                    if (!addPossibleMove(board, x + i * k, y + j * k, possibleMoves)) {
                         break;
                     }
                 }
             }
         }
+        return possibleMoves;
     }
 
-    private boolean addPossibleMove(Board board, int x, int y) {
+    private boolean addPossibleMove(Board board, int x, int y, ArrayList<Box> possibleMoves) {
         try {
             Spot box = board.getBox(x, y);
             if (box.getPiece() == null) {
-                getPossibleMoves().add(box);
+                possibleMoves.add(new Box(x, y));
                 return true;
             } else if (box.getPiece().isWhite() != isWhite()) {
-                getPossibleMoves().add(box);
+                possibleMoves.add(new Box(x, y));
             }
         } catch (IndexOutOfBoundsException ignored) {}
         return false;
