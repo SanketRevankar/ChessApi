@@ -62,49 +62,55 @@ public class ChessManager {
             }
         }
 
-        if (game.isCheck()) {
-            boolean checkmate = true;
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    Piece piece = board[i][j].getPiece();
-                    if (piece != null) {
-                        if (piece.isWhite() == whiteSide) {
-                            ArrayList<Box> possibleMoves = new ArrayList<>();
-                            Spot start = board[i][j];
-                            for (Box move : piece.getPossibleMoves()) {
-                                int x = move.getX();
-                                int y = move.getY();
-                                Spot end = board[x][y];
-
-                                Piece endPiece = end.getPiece();
-                                end.setPiece(start.getPiece());
-                                start.setPiece(null);
-
-                                if (piece instanceof King) {
-                                    if (!hasCheck(game, x, y)) {
-                                        possibleMoves.add(move);
-                                        checkmate = false;
-                                    }
-                                } else {
-                                    if (!hasCheck(game, kingX, kingY)) {
-                                        possibleMoves.add(move);
-                                        checkmate = false;
-                                    }
-                                }
-
-                                start.setPiece(end.getPiece());
-                                end.setPiece(endPiece);
-                            }
-                            piece.setPossibleMoves(possibleMoves);
-                        }
+        boolean checkmate = true;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board[i][j].getPiece();
+                if (piece != null) {
+                    if (piece.isWhite() == whiteSide) {
+                        checkmate = isCheckmate(board, kingX, kingY, checkmate, board[i][j], piece);
                     }
                 }
             }
+        }
 
+        if (game.isCheck()) {
             if (checkmate) {
                 game.setStatus(game.getCurrentTurn().isWhiteSide() ? GameStatus.BLACK_WIN : GameStatus.WHITE_WIN);
             }
         }
+    }
+
+    private boolean isCheckmate(Spot[][] board, int kingX, int kingY, boolean checkmate, Spot start, Piece piece) {
+        ArrayList<Box> possibleMoves = new ArrayList<>();
+        for (Box move : piece.getPossibleMoves()) {
+            int x = move.getX();
+            int y = move.getY();
+            Spot end = board[x][y];
+
+            Piece endPiece = end.getPiece();
+            end.setPiece(start.getPiece());
+            start.setPiece(null);
+
+            if (piece instanceof King) {
+                checkmate = isCheckmate(x, y, checkmate, possibleMoves, move);
+            } else {
+                checkmate = isCheckmate(kingX, kingY, checkmate, possibleMoves, move);
+            }
+
+            start.setPiece(end.getPiece());
+            end.setPiece(endPiece);
+        }
+        piece.setPossibleMoves(possibleMoves);
+        return checkmate;
+    }
+
+    private boolean isCheckmate(int kingX, int kingY, boolean checkmate, ArrayList<Box> possibleMoves, Box move) {
+        if (!hasCheck(game, kingX, kingY)) {
+            possibleMoves.add(move);
+            checkmate = false;
+        }
+        return checkmate;
     }
 
     private boolean hasCheck(Game game, int x, int y) {
