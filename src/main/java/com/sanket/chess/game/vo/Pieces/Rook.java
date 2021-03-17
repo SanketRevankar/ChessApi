@@ -55,7 +55,7 @@ public class Rook extends Piece {
         int[][] choices = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int[] choice: choices) {
             for (int k = 1; k < 8; k++) {
-                if (!addPossibleMove(board, x + choice[0] * k, y + choice[1] * k)) {
+                if (!addPossibleMove(board, x + choice[0] * k, y + choice[1] * k, possibleMoves)) {
                     break;
                 }
             }
@@ -63,14 +63,14 @@ public class Rook extends Piece {
         return possibleMoves;
     }
 
-    private boolean addPossibleMove(Board board, int x, int y) {
+    private boolean addPossibleMove(Board board, int x, int y, ArrayList<Box> possibleMoves) {
         try {
             Spot box = board.getBox(x, y);
             if (box.getPiece() == null) {
-                getPossibleMoves().add(new Box(x, y));
+                possibleMoves.add(new Box(x, y));
                 return true;
             } else if (box.getPiece().isWhite() != isWhite()) {
-                getPossibleMoves().add(new Box(x, y));
+                possibleMoves.add(new Box(x, y));
             }
         } catch (IndexOutOfBoundsException ignored) {}
         return false;

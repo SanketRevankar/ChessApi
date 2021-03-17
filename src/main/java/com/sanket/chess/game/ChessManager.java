@@ -41,6 +41,8 @@ public class ChessManager {
     public void getPossibleMoves() {
         Spot[][] board = game.getBoard().getBoxes();
         boolean whiteSide = game.getCurrentTurn().isWhiteSide();
+        int kingX = -1;
+        int kingY = -1;
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -49,12 +51,58 @@ public class ChessManager {
                     if (piece.isWhite() == whiteSide) {
                         piece.setPossibleMoves(piece.fetchPossibleMoves(game, i, j));
                         if (piece instanceof King) {
+                            kingX = i;
+                            kingY = j;
                             game.setCheck(hasCheck(game, i, j));
                         }
                     } else {
                         piece.setPossibleMoves(new ArrayList<>());
                     }
                 }
+            }
+        }
+
+        if (game.isCheck()) {
+            boolean checkmate = true;
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    Piece piece = board[i][j].getPiece();
+                    if (piece != null) {
+                        if (piece.isWhite() == whiteSide) {
+                            ArrayList<Box> possibleMoves = new ArrayList<>();
+                            Spot start = board[i][j];
+                            for (Box move : piece.getPossibleMoves()) {
+                                int x = move.getX();
+                                int y = move.getY();
+                                Spot end = board[x][y];
+
+                                Piece endPiece = end.getPiece();
+                                end.setPiece(start.getPiece());
+                                start.setPiece(null);
+
+                                if (piece instanceof King) {
+                                    if (!hasCheck(game, x, y)) {
+                                        possibleMoves.add(move);
+                                        checkmate = false;
+                                    }
+                                } else {
+                                    if (!hasCheck(game, kingX, kingY)) {
+                                        possibleMoves.add(move);
+                                        checkmate = false;
+                                    }
+                                }
+
+                                start.setPiece(end.getPiece());
+                                end.setPiece(endPiece);
+                            }
+                            piece.setPossibleMoves(possibleMoves);
+                        }
+                    }
+                }
+            }
+
+            if (checkmate) {
+                game.setStatus(game.getCurrentTurn().isWhiteSide() ? GameStatus.BLACK_WIN : GameStatus.WHITE_WIN);
             }
         }
     }
